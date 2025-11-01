@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryGreen = Color(0xFF4CAF50);
-  static const Color secondaryBlue = Color(0xFF2196F3);
+  // EcoChip brand colors
+  static const Color primaryGreen = Color(0xFF4C8B7F);
+  static const Color secondaryGreen = Color(0xFF2E5E54);
+  static const Color secondaryBlue = Color(
+    0xFF2196F3,
+  ); // For backward compatibility
   static const Color accentOrange = Color(0xFFFF9800);
+  static const Color textDark = Color(0xFF3E3E3E);
 
   static ThemeData lightTheme = ThemeData(
     primaryColor: primaryGreen,
     scaffoldBackgroundColor: Colors.white,
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: primaryGreen,
-      secondary: secondaryBlue,
+      secondary: secondaryGreen,
       surface: Colors.white,
     ),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       elevation: 0,
       iconTheme: IconThemeData(color: primaryGreen),
       titleTextStyle: TextStyle(
-        color: Colors.black87,
+        color: textDark,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
+    ),
+    cardTheme: CardThemeData(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );
 }

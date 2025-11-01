@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/custom_drawer.dart';
-import '../../../shared/widgets/hero_banner.dart';
+import '../../../shared/widgets/hero_banner_with_buttons.dart';
 import '../../../shared/widgets/statistics_card.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../app/router.dart';
@@ -11,34 +11,41 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('E-Coli Waste Management'), centerTitle: true),
-      drawer: CustomDrawer(),
+      appBar: AppBar(
+        title: const Text('EcoChip E-Waste Management'),
+        centerTitle: true,
+      ),
+      drawer: const CustomDrawer(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero Banner
-            HeroBanner(
-              title: 'Think Out of Trash Box',
-              subtitle: 'Environment conservation through waste recycling',
+            // Enhanced Hero Banner with Buttons
+            HeroBannerWithButtons(
+              title: 'Mine E-Waste, Not Earth',
+              subtitle:
+                  'E-Coli always invest in betterment of Mother Earth, that\'s why able to provide technically smarter solutions for E-Waste.',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1200', // Nature/leaves background
+              height: 400,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Statistics Cards
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Our Impact',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                     childAspectRatio: 1.0,
@@ -72,19 +79,19 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
 
             // Services Section
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Our Services',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   _buildServiceCard(
                     context,
                     title: 'E-Waste Recycling',
@@ -123,41 +130,139 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
+
+            // Reviews Section
+            _buildReviewsSection(),
+            const SizedBox(height: 30),
 
             // About Section
             Container(
               color: Colors.grey[100],
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'About E-Coli',
+                  const Text(
+                    'About EcoChip',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'E-Coli Waste Management Pvt. Ltd is a waste management company instigated in 2002 with a novel idea of environment conservation through recycling of hazardous E-Waste, Plastic waste and treatment of Bio-Medical waste.',
+                  const SizedBox(height: 16),
+                  const Text(
+                    'EcoChip Waste Management Pvt. Ltd is a waste management company instigated in 2002 with a novel idea of environment conservation through recycling of hazardous E-Waste, Plastic waste and treatment of Bio-Medical waste.',
                     style: TextStyle(fontSize: 16, height: 1.5),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, AppRouter.about);
                     },
-                    child: Text('Learn More'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryGreen,
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 30,
                         vertical: 15,
                       ),
                     ),
+                    child: const Text('Learn More'),
                   ),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Reviews Section
+  Widget _buildReviewsSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Client Reviews',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 200,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildReviewCard(
+                  name: 'Rajesh Kumar',
+                  review: 'Excellent service! They collected e-waste promptly.',
+                  rating: 5,
+                ),
+                _buildReviewCard(
+                  name: 'Priya Sharma',
+                  review: 'Very professional team. Highly recommended.',
+                  rating: 5,
+                ),
+                _buildReviewCard(
+                  name: 'Amit Patel',
+                  review: 'Great initiative for environment conservation.',
+                  rating: 4,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewCard({
+    required String name,
+    required String review,
+    required int rating,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(right: 16),
+      child: Container(
+        width: 280,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: AppTheme.primaryGreen,
+                  child: Text(
+                    name[0],
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        children: List.generate(
+                          5,
+                          (index) => Icon(
+                            index < rating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(review, style: TextStyle(color: Colors.grey[700])),
           ],
         ),
       ),
@@ -173,34 +278,34 @@ class HomeScreen extends StatelessWidget {
     required String route,
   }) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () => Navigator.pushNamed(context, route),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, size: 30, color: color),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
@@ -208,7 +313,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
             ],
           ),
         ),

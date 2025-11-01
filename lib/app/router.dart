@@ -1,5 +1,9 @@
 // ignore_for_file: unused_import
 
+import 'package:ecoli_waste_app/features/ai/presentation/ai_chatbot_screen.dart';
+import 'package:ecoli_waste_app/features/profile/presentation/profile_screen.dart';
+import 'package:ecoli_waste_app/features/schedule/presentation/schedule_screen.dart';
+import 'package:ecoli_waste_app/features/splash/presentation/splash_screen.dart';
 import 'package:flutter/material.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/ewaste/presentation/ewaste_screen.dart';
@@ -13,7 +17,8 @@ import '../features/awards/presentation/awards_screen.dart';
 import '../features/contact/presentation/contact_screen.dart';
 
 class AppRouter {
-  static const String home = '/';
+  static const String splash = '/';
+  static const String home = '/home';
   static const String ewaste = '/ewaste';
   static const String plastic = '/plastic';
   static const String biomedical = '/biomedical';
@@ -23,9 +28,14 @@ class AppRouter {
   static const String awareness = '/awareness';
   static const String awards = '/awards';
   static const String contact = '/contact';
+  static const String profile = '/profile';
+  static const String schedule = '/schedule';
+  static const String aiChat = '/ai-chat';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case splash:
+        return MaterialPageRoute(builder: (_) => SplashScreen());
       case home:
         return MaterialPageRoute(builder: (_) => HomeScreen());
       // case ewaste:
@@ -46,6 +56,12 @@ class AppRouter {
       //   return MaterialPageRoute(builder: (_) => AwardsScreen());
       case contact:
         return MaterialPageRoute(builder: (_) => ContactScreen());
+      case profile:
+        return MaterialPageRoute(builder: (_) => ProfileScreen());
+      case schedule:
+        return MaterialPageRoute(builder: (_) => ScheduleScreen());
+      case aiChat:
+        return MaterialPageRoute(builder: (_) => AIChatbotScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

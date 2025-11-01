@@ -30,6 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.20.2
+  shared_preferences: ^2.2.0
+  google_generative_ai: ^0.4.7
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -38,6 +44,28 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+# Flutter Native Splash Configuration (at root level, NOT under dependencies)
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/ecochip_logo.png
+  
+  color_dark: "#1E1E1E"
+  image_dark: assets/images/ecochip_logo.png
+  
+  branding: assets/images/ecochip_logo.png
+  branding_mode: bottom
+  
+  fullscreen: true
+  
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/ecochip_logo.png
+    icon_background_color: "#4C8B7F"
+    color_dark: "#1E1E1E"
+    image_dark: assets/images/ecochip_logo.png
+    icon_background_color_dark: "#2E5E54"
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -45,6 +73,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+  
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -56,6 +88,12 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/images/
+    
+
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

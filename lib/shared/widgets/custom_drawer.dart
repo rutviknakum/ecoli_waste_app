@@ -45,6 +45,24 @@ class CustomDrawer extends StatelessWidget {
           _buildSectionHeader('Main Services'),
           _buildDrawerItem(
             context,
+            icon: Icons.person,
+            title: 'User Profile',
+            route: AppRouter.profile,
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.schedule,
+            title: 'Schedule Pickup',
+            route: AppRouter.schedule,
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.smart_toy,
+            title: 'AI Assistant',
+            route: AppRouter.aiChat,
+          ),
+          _buildDrawerItem(
+            context,
             icon: Icons.computer,
             title: 'E-Waste Recycling',
             route: AppRouter.ewaste,
@@ -55,12 +73,7 @@ class CustomDrawer extends StatelessWidget {
             title: 'Plastic Waste',
             route: AppRouter.plastic,
           ),
-          _buildDrawerItem(
-            context,
-            icon: Icons.medical_services,
-            title: 'Bio-Medical Waste',
-            route: AppRouter.biomedical,
-          ),
+
           _buildDrawerItem(
             context,
             icon: Icons.engineering,
