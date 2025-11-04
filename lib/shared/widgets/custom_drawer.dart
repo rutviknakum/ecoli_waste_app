@@ -74,12 +74,6 @@ class CustomDrawer extends StatelessWidget {
             route: AppRouter.plastic,
           ),
 
-          _buildDrawerItem(
-            context,
-            icon: Icons.engineering,
-            title: 'Engimech',
-            route: AppRouter.engimech,
-          ),
           Divider(),
           _buildSectionHeader('Information'),
           _buildDrawerItem(
