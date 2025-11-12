@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/widgets/custom_drawer.dart';
@@ -57,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: AppTheme.primaryGreen,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         );
@@ -67,7 +68,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadPickupHistory() async {
     await SharedPreferences.getInstance();
-    // Load from SharedPreferences or API
     setState(() {
       pickupHistory = [
         {
@@ -88,12 +88,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Profile'),
+        title: const Text(
+          'User Profile',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        // ✅ Back button is automatically added by Flutter
-        // You can customize it with leading property if needed
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -101,192 +103,295 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       drawer: const CustomDrawer(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      body: Stack(
+        children: [
+          _ProfileBgRipples(),
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 15),
+                _buildUniqueProfileHeader(isDark),
+                const SizedBox(height: 33),
+                _buildProfileForm(isDark),
+                const SizedBox(height: 28),
+                _buildPickupHistory(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========== UNIQUE PROFILE HEADER ==========
+  Widget _buildUniqueProfileHeader(bool isDark) {
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              color: Colors.white.withOpacity(isDark ? 0.10 : 0.30),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryGreen.withOpacity(.13),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+              border: Border.all(
+                color: AppTheme.primaryGreen.withOpacity(.14),
+                width: 2,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryGreen.withOpacity(.11),
+                        blurRadius: 7,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 44,
+                    backgroundColor: AppTheme.primaryGreen,
+                    child: Icon(Icons.person, size: 51, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _nameController.text.isEmpty
+                      ? 'User Name'
+                      : _nameController.text,
+                  style: TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryGreen,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _emailController.text.isEmpty
+                      ? 'your@email.com'
+                      : _emailController.text,
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.grey[200] : Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.verified, color: Colors.green, size: 17),
+                      SizedBox(width: 4),
+                      Text(
+                        "EcoChip Member",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ========== MODERN PROFILE FORM ==========
+  Widget _buildProfileForm(bool isDark) {
+    // Accent backgrounds for prefixed icons
+    Color iconBg = AppTheme.primaryGreen.withOpacity(.11);
+    return Form(
+      key: _formKey,
+      child: Card(
+        elevation: isDark ? 2 : 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+        color: isDark ? Colors.grey[900] : Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 26),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Personal Information",
+                style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 21),
+              _pillField(
+                controller: _nameController,
+                label: 'Full Name',
+                hint: 'Enter your full name',
+                icon: Icons.person,
+                iconBg: iconBg,
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Name is required' : null,
+              ),
+              const SizedBox(height: 18),
+              _pillField(
+                controller: _emailController,
+                label: 'Email ID',
+                hint: 'Email address',
+                icon: Icons.email,
+                iconBg: iconBg,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value?.isEmpty ?? true) return 'Email is required';
+                  if (!value!.contains('@')) return 'Invalid email';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 18),
+              _pillField(
+                controller: _phoneController,
+                label: 'Phone Number',
+                hint: 'Your phone number',
+                icon: Icons.phone,
+                iconBg: iconBg,
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value?.isEmpty ?? true) return 'Phone is required';
+                  if (value!.length < 10) return 'Invalid phone number';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 18),
+              _pillField(
+                controller: _addressController,
+                label: 'Address',
+                hint: 'Your address',
+                icon: Icons.location_on,
+                iconBg: iconBg,
+                maxLines: 3,
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Address is required' : null,
+              ),
+              const SizedBox(height: 25),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: _saveUserProfile,
+                  icon: const Icon(Icons.save),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2.5,
+                  ),
+                  label: const Text(
+                    'Save Profile',
+                    style: TextStyle(
+                      fontSize: 16.7,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _pillField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    Color? iconBg,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Container(
+          margin: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: iconBg ?? Colors.grey[200],
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: AppTheme.primaryGreen),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+        filled: true,
+        fillColor: Colors.grey[50],
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16.5,
+          horizontal: 13,
+        ),
+      ),
+    );
+  }
+
+  // ========== UNIQUE PICKUP HISTORY ==========
+  Widget _buildPickupHistory() {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 30, top: 2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      color: Colors.grey[50],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Header
-            _buildProfileHeader(),
-            const SizedBox(height: 30),
-
-            // Profile Form
-            _buildProfileForm(),
-            const SizedBox(height: 30),
-
-            // Pickup History
-            _buildPickupHistory(),
+            const Text(
+              'Pickup Request History',
+              style: TextStyle(fontSize: 17.5, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 14),
+            pickupHistory.isEmpty
+                ? _buildEmptyHistory()
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: pickupHistory.length,
+                    itemBuilder: (context, index) {
+                      final item = pickupHistory[index];
+                      return _buildHistoryCard(item);
+                    },
+                  ),
           ],
         ),
       ),
-    );
-  }
-
-  // ========== PROFILE HEADER ==========
-  Widget _buildProfileHeader() {
-    return Center(
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundColor: AppTheme.primaryGreen,
-            child: const Icon(Icons.person, size: 50, color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _nameController.text.isEmpty ? 'User Name' : _nameController.text,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _emailController.text.isEmpty
-                ? 'user@example.com'
-                : _emailController.text,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ========== PROFILE FORM ==========
-  Widget _buildProfileForm() {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Personal Information',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
-          // Name Field
-          TextFormField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              labelText: 'Full Name',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              prefixIcon: const Icon(Icons.person),
-              filled: true,
-              fillColor: Colors.grey[50],
-            ),
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Name is required' : null,
-          ),
-          const SizedBox(height: 16),
-
-          // Email Field
-          TextFormField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              labelText: 'Email ID',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              prefixIcon: const Icon(Icons.email),
-              filled: true,
-              fillColor: Colors.grey[50],
-            ),
-            keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value?.isEmpty ?? true) return 'Email is required';
-              if (!value!.contains('@')) return 'Invalid email';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Phone Field
-          TextFormField(
-            controller: _phoneController,
-            decoration: InputDecoration(
-              labelText: 'Phone Number',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              prefixIcon: const Icon(Icons.phone),
-              filled: true,
-              fillColor: Colors.grey[50],
-            ),
-            keyboardType: TextInputType.phone,
-            validator: (value) {
-              if (value?.isEmpty ?? true) return 'Phone is required';
-              if (value!.length < 10) return 'Invalid phone number';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Address Field
-          TextFormField(
-            controller: _addressController,
-            decoration: InputDecoration(
-              labelText: 'Address',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              prefixIcon: const Icon(Icons.location_on),
-              filled: true,
-              fillColor: Colors.grey[50],
-              alignLabelWithHint: true,
-            ),
-            maxLines: 3,
-            validator: (value) =>
-                value?.isEmpty ?? true ? 'Address is required' : null,
-          ),
-          const SizedBox(height: 24),
-
-          // Save Button
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _saveUserProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryGreen,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 2,
-              ),
-              child: const Text(
-                'Save Profile',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ========== PICKUP HISTORY ==========
-  Widget _buildPickupHistory() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Pickup Request History',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        pickupHistory.isEmpty
-            ? _buildEmptyHistory()
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: pickupHistory.length,
-                itemBuilder: (context, index) {
-                  final item = pickupHistory[index];
-                  return _buildHistoryCard(item);
-                },
-              ),
-      ],
     );
   }
 
@@ -294,11 +399,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Center(
       child: Column(
         children: [
-          Icon(Icons.history, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
+          Icon(Icons.history, size: 54, color: Colors.grey[350]),
+          const SizedBox(height: 14),
           Text(
             'No pickup history available',
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            style: TextStyle(color: Colors.grey[600], fontSize: 15),
           ),
         ],
       ),
@@ -307,42 +412,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildHistoryCard(Map<String, dynamic> item) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 13),
+      elevation: 1.5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+      color: Colors.white,
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppTheme.primaryGreen.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(Icons.recycling, color: AppTheme.primaryGreen, size: 28),
+        contentPadding: const EdgeInsets.all(13),
+        leading: CircleAvatar(
+          backgroundColor: AppTheme.primaryGreen.withOpacity(0.10),
+          child: Icon(Icons.recycling, color: AppTheme.primaryGreen, size: 24),
         ),
         title: Text(
           item['type'],
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.only(top: 2),
           child: Text(
             '${item['date']} • ${item['weight']}',
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            style: TextStyle(color: Colors.grey[600], fontSize: 13.6),
           ),
         ),
         trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.green,
-            borderRadius: BorderRadius.circular(20),
+            color: item['status'] == 'Completed' ? Colors.green : Colors.orange,
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Text(
             item['status'],
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontSize: 12.0,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -358,4 +460,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _addressController.dispose();
     super.dispose();
   }
+}
+
+// Decorative background ripples
+class _ProfileBgRipples extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Stack(
+        children: [
+          _CircleProfile(
+            color: AppTheme.primaryGreen.withOpacity(0.10),
+            left: -70,
+            top: -10,
+            radius: 120,
+          ),
+          _CircleProfile(
+            color: Colors.green.withOpacity(0.09),
+            left: 190,
+            top: -25,
+            radius: 75,
+          ),
+          _CircleProfile(
+            color: Colors.greenAccent.withOpacity(0.13),
+            left: 0,
+            top: 200,
+            radius: 110,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CircleProfile extends StatelessWidget {
+  final Color color;
+  final double left, top, radius;
+  const _CircleProfile({
+    required this.color,
+    required this.left,
+    required this.top,
+    required this.radius,
+  });
+  @override
+  Widget build(BuildContext context) => Positioned(
+    left: left,
+    top: top,
+    child: Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    ),
+  );
 }

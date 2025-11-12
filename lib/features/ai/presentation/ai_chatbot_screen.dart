@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../core/themes/app_theme.dart';
@@ -13,7 +14,6 @@ class AIChatbotScreen extends StatefulWidget {
 class _AIChatbotScreenState extends State<AIChatbotScreen>
     with SingleTickerProviderStateMixin {
   static const String apiKey = 'AIzaSyBSfUohhZWj7svrxBfC-PBxXO_z8BreyiI';
-
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
@@ -33,14 +33,12 @@ class _AIChatbotScreenState extends State<AIChatbotScreen>
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
     _model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
-
     _addWelcomeMessage();
   }
 
@@ -89,8 +87,6 @@ class _AIChatbotScreenState extends State<AIChatbotScreen>
   Future<void> _sendMessage({String? predefinedMessage}) async {
     final messageText = predefinedMessage ?? _messageController.text.trim();
     if (messageText.isEmpty) return;
-
-    // Hide suggestions after first message
     setState(() {
       _showSuggestions = false;
     });
@@ -140,7 +136,6 @@ Respond in a helpful, conversational tone:''';
         'Your internet might be slow. Try again?',
       );
     } catch (e) {
-      print('AI Error: $e');
       _addBotMessage(
         '😅 Oops! Something went wrong.\n\n'
         'Please check your connection and try again.',
@@ -154,129 +149,45 @@ Respond in a helpful, conversational tone:''';
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.grey[50]!, Colors.white],
-          ),
-        ),
-        child: Column(
-          children: [
-            // Messages
-            Expanded(
-              child: _messages.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 20,
-                      ),
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        return _buildMessageBubble(_messages[index]);
-                      },
-                    ),
-            ),
-
-            // Typing Indicator
-            if (_isLoading) _buildTypingIndicator(),
-
-            // Quick Suggestions
-            if (_showSuggestions && _messages.length <= 1)
-              _buildQuickSuggestions(),
-
-            // Input Field
-            _buildInputArea(),
-          ],
-        ),
+      backgroundColor: isDark ? const Color(0xFF11181D) : Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(75),
+        child: GlassAppBar(),
       ),
-    );
-  }
-
-  // ========== APP BAR ==========
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black87,
-      title: Row(
+      body: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryGreen,
-                  AppTheme.primaryGreen.withOpacity(0.7),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryGreen.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Icon(Icons.smart_toy, size: 24, color: Colors.white),
-          ),
-          const SizedBox(width: 12),
+          _ChatBgRipples(),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'EcoChip AI',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+              Expanded(
+                child: _messages.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          return _buildMessageBubble(_messages[index]);
+                        },
+                      ),
               ),
-              Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF4CAF50),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text(
-                    'Online',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ],
-              ),
+              if (_isLoading) _buildTypingIndicator(),
+              if (_showSuggestions && _messages.length <= 1)
+                _buildQuickSuggestions(),
+              _buildInputArea(),
             ],
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.info_outline),
-          onPressed: () {
-            _showInfoDialog();
-          },
-          tooltip: 'About',
-        ),
-      ],
     );
   }
 
-  // ========== EMPTY STATE ==========
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -322,86 +233,84 @@ Respond in a helpful, conversational tone:''';
     );
   }
 
-  // ========== MESSAGE BUBBLE ==========
   Widget _buildMessageBubble(ChatMessage message) {
     final bool isUser = message.isUser;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: isUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        children: [
-          if (!isUser) ...[
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryGreen,
-                    AppTheme.primaryGreen.withOpacity(0.7),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(18),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: isUser
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      children: [
+        if (!isUser) ...[
+          Container(
+            margin: const EdgeInsets.only(right: 5, bottom: 2, top: 7),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [AppTheme.primaryGreen, Colors.greenAccent],
               ),
-              child: const Icon(Icons.smart_toy, size: 20, color: Colors.white),
             ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: isUser
-                    ? LinearGradient(
-                        colors: [
-                          AppTheme.primaryGreen,
-                          AppTheme.primaryGreen.withOpacity(0.8),
-                        ],
-                      )
-                    : null,
-                color: isUser ? null : Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(isUser ? 20 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 20),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+            child: Padding(
+              padding: const EdgeInsets.all(7),
+              child: Icon(Icons.smart_toy, color: Colors.white, size: 20),
+            ),
+          ),
+        ],
+        Flexible(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            margin: EdgeInsets.only(bottom: 16, top: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: isUser
+                  ? LinearGradient(
+                      colors: [
+                        AppTheme.primaryGreen,
+                        AppTheme.primaryGreen.withOpacity(0.8),
+                      ],
+                    )
+                  : LinearGradient(colors: [Colors.white, Colors.grey[100]!]),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(25),
+                topRight: const Radius.circular(25),
+                bottomLeft: Radius.circular(isUser ? 22 : 5),
+                bottomRight: Radius.circular(isUser ? 5 : 22),
               ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color: isUser ? Colors.white : Colors.black87,
-                  fontSize: 15,
-                  height: 1.5,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 11,
+                  offset: const Offset(0, 5),
                 ),
+              ],
+            ),
+            child: Text(
+              message.text,
+              style: TextStyle(
+                color: isUser ? Colors.white : Colors.black87,
+                fontSize: 15.2,
+                height: 1.55,
               ),
             ),
           ),
-          if (isUser) ...[
-            const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.grey[300],
-              child: Icon(Icons.person, size: 20, color: Colors.grey[600]),
+        ),
+        if (isUser) ...[
+          Container(
+            margin: const EdgeInsets.only(left: 5, bottom: 2, top: 7),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              shape: BoxShape.circle,
             ),
-          ],
+            child: const Padding(
+              padding: EdgeInsets.all(7),
+              child: Icon(Icons.person, size: 20, color: Colors.black54),
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 
-  // ========== TYPING INDICATOR ==========
   Widget _buildTypingIndicator() {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
@@ -445,7 +354,6 @@ Respond in a helpful, conversational tone:''';
           1.0,
         );
         final double scale = 1.0 + (value * 0.5);
-
         return Transform.scale(
           scale: scale,
           child: Container(
@@ -461,10 +369,9 @@ Respond in a helpful, conversational tone:''';
     );
   }
 
-  // ========== QUICK SUGGESTIONS ==========
   Widget _buildQuickSuggestions() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -478,20 +385,20 @@ Respond in a helpful, conversational tone:''';
           ),
           const SizedBox(height: 10),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _suggestions.map((suggestion) {
+            spacing: 9,
+            runSpacing: 9,
+            children: _suggestions.map((s) {
               return InkWell(
-                onTap: () => _sendMessage(predefinedMessage: suggestion.text),
-                borderRadius: BorderRadius.circular(20),
+                onTap: () => _sendMessage(predefinedMessage: s.text),
+                borderRadius: BorderRadius.circular(21),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 15,
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(21),
                     border: Border.all(color: Colors.grey[300]!, width: 1),
                     boxShadow: [
                       BoxShadow(
@@ -504,13 +411,10 @@ Respond in a helpful, conversational tone:''';
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(s.icon, style: const TextStyle(fontSize: 16)),
+                      const SizedBox(width: 7),
                       Text(
-                        suggestion.icon,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        suggestion.text,
+                        s.text,
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black87,
@@ -527,7 +431,6 @@ Respond in a helpful, conversational tone:''';
     );
   }
 
-  // ========== INPUT AREA ==========
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -601,39 +504,6 @@ Respond in a helpful, conversational tone:''';
     );
   }
 
-  // ========== INFO DIALOG ==========
-  void _showInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('About EcoChip AI'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Powered by Google Gemini AI'),
-            SizedBox(height: 12),
-            Text(
-              'I can help with:\n'
-              '• E-Waste identification\n'
-              '• Recycling guidelines\n'
-              '• Waste categorization\n'
-              '• Pickup scheduling\n',
-              style: TextStyle(fontSize: 14),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _messageController.dispose();
@@ -644,12 +514,170 @@ Respond in a helpful, conversational tone:''';
   }
 }
 
-// ========== MODELS ==========
+// Glass/Frosted AppBar implementation
+class GlassAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(30),
+        bottomRight: Radius.circular(30),
+      ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 13, sigmaY: 13),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.43),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 14,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(19, 24, 19, 17),
+            child: Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppTheme.primaryGreen, Colors.greenAccent],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(.11),
+                        blurRadius: 6,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(
+                    Icons.smart_toy,
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'EcoChip AI',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.5,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Row(
+                        children: const [
+                          Icon(Icons.circle, size: 9, color: Color(0xFF34C759)),
+                          SizedBox(width: 6),
+                          Text(
+                            'Online',
+                            style: TextStyle(
+                              fontSize: 12.3,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.info_outline, color: Colors.black87),
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      title: const Text('About EcoChip AI'),
+                      content: const Text(
+                        'A next-gen Eco assistant powered by Google Gemini. Ask anything about E-Waste, recycling, scheduling and eco tips!',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  tooltip: 'About',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Decorative ripple background for chat
+class _ChatBgRipples extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Stack(
+        children: [
+          _BGCircle(
+            color: AppTheme.primaryGreen.withOpacity(0.13),
+            left: -80,
+            top: -16,
+            radius: 140,
+          ),
+          _BGCircle(
+            color: Colors.greenAccent.withOpacity(0.08),
+            left: 120,
+            top: 400,
+            radius: 110,
+          ),
+          _BGCircle(
+            color: Colors.lightGreenAccent.withOpacity(0.09),
+            left: 210,
+            top: -20,
+            radius: 88,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BGCircle extends StatelessWidget {
+  final Color color;
+  final double left, top, radius;
+  const _BGCircle({
+    required this.color,
+    required this.left,
+    required this.top,
+    required this.radius,
+  });
+  @override
+  Widget build(BuildContext context) => Positioned(
+    left: left,
+    top: top,
+    child: Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    ),
+  );
+}
+
+// MODELS
 class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
-
   ChatMessage({
     required this.text,
     required this.isUser,
@@ -660,6 +688,5 @@ class ChatMessage {
 class QuickSuggestion {
   final String icon;
   final String text;
-
   QuickSuggestion({required this.icon, required this.text});
 }

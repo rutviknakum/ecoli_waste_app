@@ -382,7 +382,7 @@ class _ContactScreenState extends State<ContactScreen>
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedInquiryType,
+          initialValue: _selectedInquiryType,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.category),

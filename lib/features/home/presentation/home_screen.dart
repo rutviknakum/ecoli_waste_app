@@ -1,326 +1,407 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../../../shared/widgets/custom_drawer.dart';
-import '../../../shared/widgets/hero_banner_with_buttons.dart';
-import '../../../shared/widgets/statistics_card.dart';
 import '../../../core/themes/app_theme.dart';
 import '../../../app/router.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
+
+  static const List<String> quoteImages = [
+    "assets/images/generated-image (1).png",
+    "assets/images/generated-image (2).png",
+    "assets/images/generated-image.png",
+  ];
+
+  final int ewasteCount = 26;
+  final int recyclingCount = 38;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: _buildAppBar(),
+      backgroundColor: isDark
+          ? const Color(0xFF171C23)
+          : const Color(0xFFF6FAF6),
+      appBar: AppBar(
+        backgroundColor: isDark ? Colors.black : Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: isDark ? Colors.white : AppTheme.primaryGreen,
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              isDark ? 'assets/logo-dark.png' : 'assets/logo.png',
+              height: 34,
+              width: 34,
+              errorBuilder: (_, __, ___) =>
+                  Icon(Icons.verified, size: 34, color: AppTheme.primaryGreen),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "EcoChip",
+              style: TextStyle(
+                color: isDark ? Colors.white : AppTheme.primaryGreen,
+                fontWeight: FontWeight.bold,
+                fontSize: 22.0,
+              ),
+            ),
+          ],
+        ),
+      ),
       drawer: const CustomDrawer(),
-      floatingActionButton: _buildFAB(context),
-      body: _buildBody(),
-    );
-  }
-
-  // ========== APP BAR ==========
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      title: const Text('EcoChip E-Waste Management'),
-      centerTitle: true,
-      elevation: 0,
-    );
-  }
-
-  // ========== FLOATING ACTION BUTTON ==========
-  Widget _buildFAB(BuildContext context) {
-    return FloatingActionButton.extended(
-      onPressed: () => Navigator.pushNamed(context, AppRouter.aiChat),
-      backgroundColor: AppTheme.primaryGreen,
-      foregroundColor: Colors.white,
-      icon: const Icon(Icons.smart_toy, size: 20),
-      label: const Text(
-        'AI Assistant',
-        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-      ),
-      elevation: 6,
-      heroTag: 'ai_assistant_fab',
-    );
-  }
-
-  // ========== MAIN BODY ==========
-  Widget _buildBody() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Hero Banner
-          _buildHeroBanner(),
-
-          // 2. Statistics Section
-          _buildStatisticsSection(),
-
-          // 3. Services Section
-          _buildServicesSection(),
-
-          // 4. Reviews Section
-          _buildReviewsSection(),
-
-          // 5. About Section
-          _buildAboutSection(),
-
-          // Bottom padding for FAB
-          const SizedBox(height: 80),
-        ],
-      ),
-    );
-  }
-
-  // ========== HERO BANNER ==========
-  Widget _buildHeroBanner() {
-    return const HeroBannerWithButtons(
-      title: 'Mine E-Waste, Not Earth',
-      subtitle:
-          'EcoChip always invests in betterment of Mother Earth, that\'s why we\'re able to provide technically smarter solutions for E-Waste.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1200&q=80',
-      height: 450,
-    );
-  }
-
-  // ========== STATISTICS SECTION ==========
-  Widget _buildStatisticsSection() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle('Our Impact'),
-          const SizedBox(height: 16),
-          _buildStatisticsGrid(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatisticsGrid() {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 1.1,
-      children: const [
-        StatisticsCard(
-          value: '602.25',
-          label: 'Mt/Month E-Waste',
-          icon: Icons.computer,
-          color: AppTheme.primaryGreen,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, AppRouter.aiChat),
+        backgroundColor: AppTheme.primaryGreen,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.smart_toy),
+        label: const Text(
+          "AI Assistant",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        StatisticsCard(
-          value: '500',
-          label: 'Mt/Month Plastic',
-          icon: Icons.delete,
-          color: AppTheme.secondaryBlue,
-        ),
-        StatisticsCard(
-          value: '252',
-          label: 'Team Members',
-          icon: Icons.people,
-          color: AppTheme.accentOrange,
-        ),
-        StatisticsCard(
-          value: '15+',
-          label: 'Years Experience',
-          icon: Icons.work_history,
-          color: Color(0xFF9C27B0),
-        ),
-      ],
-    );
-  }
-
-  // ========== SERVICES SECTION ==========
-  Widget _buildServicesSection() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 32, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle('Our Services'),
-          const SizedBox(height: 16),
-          _buildServiceCard(
-            title: 'E-Waste Recycling',
-            description:
-                'First E-Waste recycling plant in Gujarat with 602.25 Mt/Month capacity',
-            icon: Icons.computer,
-            color: AppTheme.primaryGreen,
-            route: AppRouter.ewaste,
-          ),
-          _buildServiceCard(
-            title: 'Plastic Waste Management',
-            description:
-                'Recycling 500 Mt/Month plastic waste with EPR compliance',
-            icon: Icons.delete,
-            color: AppTheme.secondaryBlue,
-            route: AppRouter.plastic,
-          ),
-        ],
       ),
-    );
-  }
-
-  // ========== REVIEWS SECTION ==========
-  Widget _buildReviewsSection() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 32, 0, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 30),
         children: [
+          // Greeting section
           Padding(
-            padding: const EdgeInsets.only(left: 0),
-            child: _buildSectionTitle('Client Reviews'),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(left: 16),
+            padding: const EdgeInsets.fromLTRB(22, 24, 22, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildReviewCard(
-                  name: 'Rajesh Kumar',
-                  review:
-                      'Excellent service! They collected e-waste promptly and professionally.',
-                  rating: 5,
+                Text(
+                  "Hi there,",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23,
+                    color: AppTheme.primaryGreen,
+                  ),
                 ),
-                _buildReviewCard(
-                  name: 'Priya Sharma',
-                  review:
-                      'Very professional team. Highly recommended for waste management.',
-                  rating: 5,
-                ),
-                _buildReviewCard(
-                  name: 'Amit Patel',
-                  review:
-                      'Great initiative for environment conservation. Keep up the good work!',
-                  rating: 4,
+                const SizedBox(height: 2),
+                Text(
+                  "Welcome to EcoChip Waste Management.",
+                  style: TextStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.grey[200] : Colors.grey[700],
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
 
-  // ========== ABOUT SECTION ==========
-  Widget _buildAboutSection() {
-    return Container(
-      margin: const EdgeInsets.only(top: 32),
-      color: Colors.grey[100],
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle('About EcoChip'),
-          const SizedBox(height: 16),
-          Text(
-            'EcoChip Waste Management Pvt. Ltd is a waste management company established in 2002 with a novel idea of environment conservation through recycling of hazardous E-Waste and Plastic waste.',
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.6,
-              color: Colors.grey[800],
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Will be implemented with router
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryGreen,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          // Carousel with image cards
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: CarouselSlider(
+              items: quoteImages
+                  .map(
+                    (path) => Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.11),
+                            blurRadius: 14,
+                            offset: const Offset(0, 7),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          path,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 160,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              options: CarouselOptions(
+                autoPlay: true,
+                height: 160,
+                enlargeCenterPage: true,
+                viewportFraction: .92,
               ),
             ),
-            child: const Text(
-              'Learn More',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 18),
+
+          // Services section (responsive)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionHeader('Our Services'),
+                const SizedBox(height: 10),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    double cardWidth = (box.maxWidth - 16) / 2;
+                    cardWidth = cardWidth < 135 ? box.maxWidth : cardWidth;
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 14,
+                      alignment: WrapAlignment.start,
+                      children: [
+                        _serviceCard(
+                          icon: Icons.recycling,
+                          color: AppTheme.primaryGreen,
+                          title: "E-Waste Pickup",
+                          count: ewasteCount,
+                          onTap: () =>
+                              Navigator.of(context).pushNamed(AppRouter.ewaste),
+                          width: cardWidth,
+                        ),
+                        _serviceCard(
+                          icon: Icons.eco_rounded,
+                          color: const Color(0xFF43A047),
+                          title: "Eco Recycling",
+                          count: recyclingCount,
+                          onTap: () => Navigator.of(
+                            context,
+                          ).pushNamed(AppRouter.plastic),
+                          width: cardWidth,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
             ),
           ),
+
+          // Statistics section (responsive)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionHeader('Our Impact'),
+                const SizedBox(height: 10),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    double cardWidth = (box.maxWidth - 24) / 2;
+                    cardWidth = cardWidth < 135 ? box.maxWidth : cardWidth;
+                    final stats = [
+                      _Stat(
+                        icon: Icons.computer,
+                        color: AppTheme.primaryGreen,
+                        label: "E-Waste",
+                        value: "602 Mt/mo",
+                      ),
+                      _Stat(
+                        icon: Icons.delete_outline_rounded,
+                        color: const Color(0xFF1E88E5),
+                        label: "Plastic",
+                        value: "500 Mt/mo",
+                      ),
+                      _Stat(
+                        icon: Icons.people_alt,
+                        color: const Color(0xFFA77B06),
+                        label: "Clients",
+                        value: "1,500+",
+                      ),
+                      _Stat(
+                        icon: Icons.public,
+                        color: Colors.green,
+                        label: "CO₂ Saved",
+                        value: "420T+",
+                      ),
+                    ];
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 14,
+                      children: stats
+                          .map(
+                            (s) => _statCard(
+                              icon: s.icon,
+                              color: s.color,
+                              label: s.label,
+                              value: s.value,
+                              width: cardWidth,
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // Reviews/testimonials (responsive)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionHeader('What Clients Say'),
+                const SizedBox(height: 10),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    double cardWidth = (box.maxWidth - 24) / 2;
+                    cardWidth = cardWidth < 170 ? box.maxWidth : cardWidth;
+                    final reviews = [
+                      _Review(
+                        user: "Priya Sharma",
+                        text:
+                            "Prompt pickup. EcoChip truly cares about recycling.",
+                        rating: 5,
+                      ),
+                      _Review(
+                        user: "Amit Patel",
+                        text:
+                            "Fast service, clear tracking, and professional staff.",
+                        rating: 5,
+                      ),
+                      _Review(
+                        user: "R. Kumar",
+                        text:
+                            "E-waste disposal made super easy. Will use again.",
+                        rating: 4,
+                      ),
+                    ];
+                    return Wrap(
+                      spacing: 16,
+                      runSpacing: 14,
+                      children: reviews
+                          .map((r) => _reviewCard(review: r, width: cardWidth))
+                          .toList(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 21),
+
+          // Bottom Call-to-Action
+          _ctaCard(context),
         ],
       ),
     );
   }
 
-  // ========== REUSABLE WIDGETS ==========
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
+  Widget _sectionHeader(String s) => Padding(
+    padding: const EdgeInsets.only(left: 2, bottom: 7),
+    child: Text(
+      s,
       style: const TextStyle(
-        fontSize: 24,
         fontWeight: FontWeight.bold,
-        letterSpacing: -0.5,
+        fontSize: 18,
+        letterSpacing: 0.05,
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _buildServiceCard({
-    required String title,
-    required String description,
+  Widget _serviceCard({
     required IconData icon,
     required Color color,
-    required String route,
+    required String title,
+    required int count,
+    required VoidCallback onTap,
+    required double width,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () {
-          // Will navigate using route
-        },
-        borderRadius: BorderRadius.circular(12),
+    return SizedBox(
+      width: width,
+      child: Card(
+        elevation: 3,
+        color: color.withOpacity(.09),
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            child: Column(
+              children: [
+                Icon(icon, size: 27, color: color),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 15.0,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 7),
+                Container(
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    "$count",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statCard({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required String value,
+    required double width,
+  }) {
+    return SizedBox(
+      width: width,
+      child: Card(
+        color: Colors.white,
+        elevation: 2.5,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+          padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+              Icon(icon, color: color, size: 25),
+              const SizedBox(height: 7),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
                 ),
-                child: Icon(icon, size: 28, color: color),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: color,
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey[400]),
             ],
           ),
         ),
@@ -328,77 +409,144 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewCard({
-    required String name,
-    required String review,
-    required int rating,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(right: 16),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        width: 280,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: AppTheme.primaryGreen,
-                  radius: 24,
-                  child: Text(
-                    name[0],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+  Widget _reviewCard({required _Review review, required double width}) {
+    return SizedBox(
+      width: width,
+      child: Card(
+        color: Colors.white,
+        elevation: 2.5,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppTheme.primaryGreen,
+                    radius: 16,
+                    child: Text(
+                      review.user[0],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      review.user,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: List.generate(
-                          5,
-                          (index) => Icon(
-                            index < rating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ],
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              review,
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 14,
-                height: 1.5,
+                  Row(
+                    children: List.generate(
+                      5,
+                      (idx) => Icon(
+                        idx < review.rating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                        size: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                review.text,
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 13,
+                  height: 1.2,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _ctaCard(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 10),
+    child: Container(
+      decoration: BoxDecoration(
+        color: AppTheme.primaryGreen,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      child: Row(
+        children: [
+          const Icon(Icons.calendar_today, color: Colors.white, size: 27),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "Book a Pickup",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  "Let EcoChip handle your e-waste—safe & easy.",
+                  style: TextStyle(fontSize: 12.9, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: AppTheme.primaryGreen,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(9),
+              ),
+            ),
+            child: const Text(
+              'Book',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _Review {
+  final String user;
+  final String text;
+  final int rating;
+  const _Review({required this.user, required this.text, required this.rating});
+}
+
+class _Stat {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+  const _Stat({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+  });
 }
